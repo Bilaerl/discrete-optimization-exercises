@@ -26,35 +26,38 @@ def solve_it(input_data):
     value = 0
     weight = 0
     taken = [0 for i in range(item_count)]
-    memo = [[0 for i in range(item_count+1)] for j in range(capacity+1)]
+    memo = [0 for j in range(capacity+1)]
 
     # Dynamic programming
-    for j, item in enumerate(items, start=1):
-        for k in range(capacity+1):
+    for item in items:
+        k = capacity
+        while k:
             if item.weight > k:
-                v = memo[k][j-1]
+                v = memo[k]
             
             else:
-                v_item_taken = item.value + memo[k-item.weight][j-1]
-                v_item_not_taken = memo[k][j-1]
+                v_item_taken = item.value + memo[k-item.weight]
+                v_item_not_taken = memo[k]
 
                 v = max(v_item_taken, v_item_not_taken)
             
-            memo[k][j] = v
+            memo[k] = v
+            k -= 1
     
-    value = memo[capacity][item_count]
+    value = memo[capacity]
 
     # getting selected items
+    # need to work on this, its probably not selecting the right items
     k = capacity
     j = item_count
 
     while j:
-        if memo[k][j] != memo[k][j-1]:
-            # use j-1 here due to python index starting at 0
+        item = items[j-1]
+        if memo[k] == memo[k - item.weight] + item.value:
             taken[j-1] = 1
-            k = k-items[j-1].weight
-
-        j = j-1
+            k = k - item.weight
+        
+        j = j-1 
     
     # prepare the solution in the specified output format
     output_data = str(value) + ' ' + str(1) + '\n'
