@@ -25,16 +25,39 @@ def solve_it(input_data):
     # it takes items in-order until the knapsack is full
     value = 0
     weight = 0
-    taken = [0]*len(items)
+    taken = [0 for i in range(item_count)]
+    memo = [[0 for i in range(item_count+1)] for j in range(capacity+1)]
 
-    for item in items:
-        if weight + item.weight <= capacity:
-            taken[item.index] = 1
-            value += item.value
-            weight += item.weight
+    # Dynamic programming
+    for j, item in enumerate(items, start=1):
+        for k in range(capacity+1):
+            if item.weight > k:
+                v = memo[k][j-1]
+            
+            else:
+                v_item_taken = item.value + memo[k-item.weight][j-1]
+                v_item_not_taken = memo[k][j-1]
+
+                v = max(v_item_taken, v_item_not_taken)
+            
+            memo[k][j] = v
+    
+    value = memo[capacity][item_count]
+
+    # getting selected items
+    k = capacity
+    j = item_count
+
+    while j:
+        if memo[k][j] != memo[k][j-1]:
+            # use j-1 here due to python index starting at 0
+            taken[j-1] = 1
+            k = k-items[j-1].weight
+
+        j = j-1
     
     # prepare the solution in the specified output format
-    output_data = str(value) + ' ' + str(0) + '\n'
+    output_data = str(value) + ' ' + str(1) + '\n'
     output_data += ' '.join(map(str, taken))
     return output_data
 
